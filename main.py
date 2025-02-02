@@ -5,16 +5,30 @@ import time
 pygame.init()
 pygame.display.init()
 screen = pygame.display.set_mode((400, 600))
+background = pygame.image.load("Images/road#1.PNG")
+background = pygame.transform.scale(background, (400, 600))
 background1 = pygame.image.load("Images/road#1.PNG")
 background1 = pygame.transform.scale(background1, (400, 600))
 background2 = pygame.image.load("Images/road#2.PNG")
 background2 = pygame.transform.scale(background2, (400,600))
 background3 = pygame.image.load("Images/road#3.PNG")
 background3 = pygame.transform.scale(background3, (400,600))
+background4 = pygame.image.load("Images/road#4.PNG")
+background4 = pygame.transform.scale(background4, (400,600))
+background5 = pygame.image.load("Images/road#5.PNG")
+background5 = pygame.transform.scale(background5, (400,600))
+background6 = pygame.image.load("Images/road#6.PNG")
+background6 = pygame.transform.scale(background6, (400,600))
+background6 = pygame.image.load("Images/road#6.PNG")
+background6 = pygame.transform.scale(background6, (400,600))
+background7 = pygame.image.load("Images/road#7.PNG")
+background7 = pygame.transform.scale(background7, (400,600))
+background8 = pygame.image.load("Images/road#8.PNG")
+background8 = pygame.transform.scale(background8, (400,600))
 
 backgrounds = [background1,background2,background3]
 
-lanes = [80, 140, 200, 260]
+lanes = [44, 125, 212, 296]
 
 car = pygame.image.load("Images/Car Sprite.png")
 car = pygame.transform.scale(car, (60, 100))
@@ -28,13 +42,13 @@ clock = pygame.time.Clock()
 def choice():
     choice = random.randint(1, 4)
     if choice == 1:
-        choice = 80
+        choice = 44
     elif choice == 2:
-        choice = 140
+        choice = 125
     elif choice == 3:
-        choice = 200
+        choice = 212
     elif choice == 4:
-        choice = 260
+        choice = 296
     return choice
 
 
@@ -71,10 +85,12 @@ class Car():
         self.Car_rect.x = choice()
         self.Car_rect.y = startY
 
-    def CarUpdate(self):
+    def CarUpdate(self,CarColor):
+
 
         screen.blit(self.Car, self.Car_rect)
-        key = pygame.key.get_pressed()
+
+        
 
 
 
@@ -83,16 +99,52 @@ class Car():
         if self.Car_rect.y > 600:
             self.Car_rect.y = -50
             self.Car_rect.x = choice()
+            if CarColor == 1:
+                    
+                self.Car = pygame.image.load("Images/Car Obstacle.PNG")
+                self.Car = pygame.transform.scale(self.Car, (60, 100))
 
+                self.speed = 5
+                
+            elif CarColor == 2:
+                self.Car = pygame.image.load("Images/Car Obstacle 2.PNG")
+                self.Car = pygame.transform.scale(self.Car, (60, 100))
+            
+                self.speed = 7
+            elif CarColor == 3:
+                self.Car = pygame.image.load("Images/Car Obstacle 3.PNG")
+                self.Car = pygame.transform.scale(self.Car, (60, 100))
+                
+                self.speed = 9
+            elif CarColor == 4:
+                self.Car = pygame.image.load("Images/Car Obstacle 4.PNG")
+                self.Car = pygame.transform.scale(self.Car, (60, 100))
 
-def Animations():
-    for background in backgrounds:
+                self.speed = 5
+                
+            elif CarColor == 5:
+                self.Car = pygame.image.load("Images/Car Obstacle 5.PNG")
+                self.Car = pygame.transform.scale(self.Car, (60, 100))
+                
+                self.speed = 3
+
+i = 0
         
+start_time = time.time()
+def Animations():
+   global start_time, i
+   current_time = time.time() 
+   if current_time - start_time >= 0.05:
+        if i < 2:
+           i += 1
+        else:
+           i = 0
+        start_time = time.time()
     
 
+
+
 current_lane = 1
-
-
 def ExtraUpdates():
     global car_rect
     global current_lane
@@ -105,34 +157,38 @@ def ExtraUpdates():
 
 
 
-
 time1 = time.time()
 GreenCar = Car(2)
 TangerineCar = Car(3)
 BlueCar = Car(4)
 
 while True:
-    print(current_lane)
     ExtraUpdates()
-    screen.blit(background1, (0, 0))
+    Animations()
+    screen.blit(backgrounds[i], (0, 0))
     screen.blit(car, car_rect)
-    
-    GreenCar.CarUpdate()
-    TangerineCar.CarUpdate()
-    BlueCar.CarUpdate()
+    CarType = random.randint(1,5)
+    GreenCar.CarUpdate(CarType)
+    CarType = random.randint(1,5)
+    TangerineCar.CarUpdate(CarType)
+    CarType = random.randint(1,5)
+    BlueCar.CarUpdate(CarType)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+        
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
                 current_lane -= 1
        
             elif event.key == pygame.K_d:
                 current_lane += 1
-    time2 = time.time()
-    if time2 - time1 >= 3:
 
-        Animations()
+    hold = pygame.key.get_pressed()
+    # if hold[pygame.K_a]:
+    #     car_rect.x -= 3
+    # elif hold[pygame.K_d]:
+    #     car_rect.x += 3
     pygame.display.flip()
     clock.tick(60)
