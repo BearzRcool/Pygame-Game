@@ -26,7 +26,7 @@ background7 = pygame.transform.scale(background7, (400,600))
 background8 = pygame.image.load("Images/road#8.PNG")
 background8 = pygame.transform.scale(background8, (400,600))
 
-backgrounds = [background1,background2,background3]
+backgrounds = [background1,background2,background3,background4,background5,background6,background7,background8]
 
 lanes = [44, 125, 212, 296]
 
@@ -135,7 +135,7 @@ def Animations():
    global start_time, i
    current_time = time.time() 
    if current_time - start_time >= 0.05:
-        if i < 2:
+        if i < 7:
            i += 1
         else:
            i = 0
@@ -158,21 +158,33 @@ def ExtraUpdates():
 
 
 time1 = time.time()
-GreenCar = Car(2)
-TangerineCar = Car(3)
-BlueCar = Car(4)
+Car1 = Car(2)
+Car2 = Car(3)
+Car3 = Car(4)
 
 while True:
     ExtraUpdates()
     Animations()
     screen.blit(backgrounds[i], (0, 0))
     screen.blit(car, car_rect)
-    CarType = random.randint(1,5)
-    GreenCar.CarUpdate(CarType)
-    CarType = random.randint(1,5)
-    TangerineCar.CarUpdate(CarType)
-    CarType = random.randint(1,5)
-    BlueCar.CarUpdate(CarType)
+
+    Car1Type = random.randint(1,5)
+    Car2Type = random.randint(1,5)
+    Car3Type = random.randint(1,5)
+
+    # if Car1Type == Car2Type or Car1Type == Car3Type:
+    #     Car1.CarUpdate(Car1Type)
+
+    
+    # elif Car2Type == Car1Type or Car2Type == Car3Type:
+    #     Car2Type = random.randint(1,5)
+    #     Car2.CarUpdate(Car2Type)
+
+    
+    # elif Car3Type == Car1Type or Car3Type == Car2Type:
+    #     Car3Type = random.randint(1,5)
+   
+    Car3.CarUpdate(Car3Type)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -185,7 +197,7 @@ while True:
             elif event.key == pygame.K_d:
                 current_lane += 1
 
-    hold = pygame.key.get_pressed()
+    #hold = pygame.key.get_pressed()
     # if hold[pygame.K_a]:
     #     car_rect.x -= 3
     # elif hold[pygame.K_d]:
