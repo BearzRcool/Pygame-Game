@@ -29,7 +29,7 @@ background8 = pygame.transform.scale(background8, (400,600))
 
 backgrounds = [background1,background2,background3,background4,background5,background6,background7,background8]
 # x-coordinates for all of the lanes.
-lanes = [44, 125, 212, 296]
+lanes = [44, 124, 212, 296]
 
 
 
@@ -42,6 +42,9 @@ car_rect.y = 350
 
 clock = pygame.time.Clock()
 
+
+move_switch_right = False
+move_switch_left = False
 
 # point system
 end = time.time()
@@ -63,13 +66,14 @@ printer = text.render("SCORE: " + str(points), True, (0,0,0))
 score = pygame.Surface((100, 100))
 
 
+
 # randomly choosing lanes for the obstacle cars
 def choice():
     choice = random.randint(1, 4)
     if choice == 1:
         choice = 44
     elif choice == 2:
-        choice = 125
+        choice = 124
     elif choice == 3:
         choice = 212
     elif choice == 4:
@@ -91,12 +95,12 @@ class Car():
             self.Car = pygame.image.load("Images/Car Obstacle 2.PNG")
             self.Car = pygame.transform.scale(self.Car, (60, 100))
    
-            self.speed = 7
+            self.speed = 5
         elif self.CarColor == 3:
             self.Car = pygame.image.load("Images/Car Obstacle 3.PNG")
             self.Car = pygame.transform.scale(self.Car, (60, 100))
     
-            self.speed = 9
+            self.speed = 7
         elif self.CarColor == 4:
             self.Car = pygame.image.load("Images/Car Obstacle 4.PNG")
             self.Car = pygame.transform.scale(self.Car, (60, 100))
@@ -139,11 +143,18 @@ current_lane = 1
 def ExtraUpdates():
     global car_rect
     global current_lane
-    if current_lane < 0:
-        current_lane += 1
-    elif current_lane > 3:
-        current_lane -= 1
-    car_rect.x = lanes[current_lane]
+    global move_switch_left
+    global move_switch_right
+    
+    
+    if move_switch_left == True and car_rect.x < 295:
+        car_rect.x += 4
+    elif move_switch_right == True and car_rect.x > 45:
+        car_rect.x -= 4
+    if car_rect.x in lanes:
+        move_switch_right = False
+        move_switch_left = False
+    
    
 cars = [Car(), Car(), Car()]
 while True:
@@ -152,23 +163,29 @@ while True:
     screen.blit(backgrounds[i], (0, 0))
     screen.blit(car, car_rect)
     screen.blit(score, (0,0))
-
+    if car_rect.x in lanes:
+        pass
     for obstacle in cars:
         obstacle.CarUpdate()
         if obstacle.Car_rect.y > 600:
             cars.remove(obstacle)
             cars.append(Car())
-
+        if obstacle.Car_rect.colliderect(car_rect):
+            pygame.quit()
+   
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
         
         elif event.type == pygame.KEYDOWN:
+            move_switch_right = False
+            move_switch_left = False
             if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-                current_lane -= 1
+                move_switch_right = True
+            
        
-            elif event.key == pygame.K_d or event.key == pygame.K_:
-                current_lane += 1
+            elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
+                move_switch_left = True
 
     PointSystem()
   
