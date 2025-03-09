@@ -1,0 +1,6 @@
+file = open("score.txt", "w")
+file.write("67865")
+file.close()
+test = open("score.txt", "r")
+print(test.read())
+test.close()

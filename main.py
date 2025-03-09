@@ -29,7 +29,7 @@ background8 = pygame.transform.scale(background8, (400,600))
 
 backgrounds = [background1,background2,background3,background4,background5,background6,background7,background8]
 # x-coordinates for all of the lanes.
-lanes = [44, 124, 212, 296]
+lanes = [48, 120, 210, 294]
 
 
 
@@ -54,16 +54,17 @@ def PointSystem():
     global end
     global points
     global start
+    global printer
     
     if end - start >= 1:
         points += 1
         start = time.time()
-        points += 1
+        printer = text.render("SCORE: " + str(points), True, (0,0,0))
     end = time.time()
 # text
-text = pygame.font.SysFont("Noto Sans", 30)
+text = pygame.font.SysFont("Mojangles", 30)
 printer = text.render("SCORE: " + str(points), True, (0,0,0))
-score = pygame.Surface((100, 100))
+score = pygame.Surface((50, 50))
 
 
 
@@ -71,13 +72,13 @@ score = pygame.Surface((100, 100))
 def choice():
     choice = random.randint(1, 4)
     if choice == 1:
-        choice = 44
+        choice = 48
     elif choice == 2:
-        choice = 124
+        choice = 120
     elif choice == 3:
-        choice = 212
+        choice = 210
     elif choice == 4:
-        choice = 296
+        choice = 294
     return choice
 
 # class defines Car obstacles in the game
@@ -113,6 +114,9 @@ class Car():
 
         self.Car_rect = self.Car.get_rect()
         self.Car_rect.x = choice()
+        if end - start > 3:
+            if self.Car_rect.x == 120:
+                self.Car_rect.x = choice()
         self.Car_rect.y = -50
 
     def CarUpdate(self):
@@ -120,8 +124,6 @@ class Car():
         self.Car_rect.y += self.speed
 
      
-            
-    #def SwitchColors(self):
 
 # For animations
 i = 0 
@@ -136,10 +138,11 @@ def Animations():
            i = 0
         start_time = time.time()
     
+        
 
 
-current_lane = 1
 # keeps the player within each of the lanes
+current_lane = 1
 def ExtraUpdates():
     global car_rect
     global current_lane
@@ -148,9 +151,9 @@ def ExtraUpdates():
     
     
     if move_switch_left == True and car_rect.x < 295:
-        car_rect.x += 4
+        car_rect.x += 6
     elif move_switch_right == True and car_rect.x > 45:
-        car_rect.x -= 4
+        car_rect.x -= 6
     if car_rect.x in lanes:
         move_switch_right = False
         move_switch_left = False
@@ -162,7 +165,8 @@ while True:
     Animations()
     screen.blit(backgrounds[i], (0, 0))
     screen.blit(car, car_rect)
-    screen.blit(score, (0,0))
+    screen.blit(printer, (0,0))
+    
     if car_rect.x in lanes:
         pass
     for obstacle in cars:
@@ -171,8 +175,15 @@ while True:
             cars.remove(obstacle)
             cars.append(Car())
         if obstacle.Car_rect.colliderect(car_rect):
+            HSCoreR = open("score.txt","r")
+            if int(HSCoreR.read()) < points:
+                HSCoreR.close()
+                HSCoreW = open("score.txt", "w")
+                HSCoreW.write(str(points))
+                HSCoreW.close()
+
             pygame.quit()
-   
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
