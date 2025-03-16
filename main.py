@@ -1,7 +1,7 @@
 import pygame
 import random
 import time
-
+import os
 pygame.init()
 pygame.display.init()
 screen = pygame.display.set_mode((400, 600))
@@ -124,6 +124,23 @@ class Car():
         self.Car_rect.y += self.speed
 
      
+#ability
+invincible = False
+ability_start = time.time()
+start = False
+def Ability():
+    global invincible, ability_start, start, points
+    ability_end = time.time()
+    if ability_end - ability_start >= 7: #cooldown
+        invincible = False
+        start = False
+    if ability_end - ability_start < 3 and points >= 10: #seconds of invinicibility
+        invincible = True
+
+    if ability_end - ability_start > 10:
+        ability_end = ability_start + 7
+
+    print(ability_end - ability_start)
 
 # For animations
 i = 0 
@@ -150,17 +167,24 @@ def ExtraUpdates():
     global move_switch_right
     
     
-    if move_switch_left == True and car_rect.x < 295:
-        car_rect.x += 6
-    elif move_switch_right == True and car_rect.x > 45:
-        car_rect.x -= 6
+    if move_switch_left == True:
+        if car_rect.x >= 294: 
+            car_rect.x = 294
+        else: 
+            car_rect.x += 6
+    elif move_switch_right == True:
+        if car_rect.x <= 45:
+            car_rect.x = 45
+        else: 
+            car_rect.x -= 6
     if car_rect.x in lanes:
         move_switch_right = False
         move_switch_left = False
     
-   
+
 cars = [Car(), Car(), Car()]
 while True:
+    os.system('cls')
     ExtraUpdates()
     Animations()
     screen.blit(backgrounds[i], (0, 0))
@@ -174,7 +198,9 @@ while True:
         if obstacle.Car_rect.y > 600:
             cars.remove(obstacle)
             cars.append(Car())
-        if obstacle.Car_rect.colliderect(car_rect):
+            #collision check:
+        if obstacle.Car_rect.colliderect(car_rect) and not invincible:
+
             HSCoreR = open("score.txt","r")
             if int(HSCoreR.read()) < points:
                 HSCoreR.close()
@@ -198,6 +224,16 @@ while True:
             elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                 move_switch_left = True
 
+            if event.key == pygame.K_SPACE:
+                ability_start = time.time()
+                start = True
+                 
+    
+    
+    print("Invinsible: " + str(invincible))
+    print("Start: " + str(start))
+    if start:
+        Ability()
     PointSystem()
   
     pygame.display.flip()
