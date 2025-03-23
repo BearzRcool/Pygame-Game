@@ -29,7 +29,13 @@ background8 = pygame.transform.scale(background8, (400,600))
 
 backgrounds = [background1,background2,background3,background4,background5,background6,background7,background8]
 # x-coordinates for all of the lanes.
-lanes = [48, 120, 210, 294]
+lanes = [42, 120, 210, 294]
+# extra
+invinciblity_start = False
+
+HSCoreR = open("score.txt","r")
+HighScore = HSCoreR.read()
+HSCoreR.close()
 
 
 
@@ -65,6 +71,9 @@ def PointSystem():
 text = pygame.font.SysFont("Mojangles", 30)
 printer = text.render("SCORE: " + str(points), True, (0,0,0))
 score = pygame.Surface((50, 50))
+inv_text = text.render("INV: " + str(invinciblity_start), True, (0,0,0))
+HSText = text.render("HS: "+ str(HighScore), True, (0,0,0))
+
 
 
 
@@ -72,7 +81,7 @@ score = pygame.Surface((50, 50))
 def choice():
     choice = random.randint(1, 4)
     if choice == 1:
-        choice = 48
+        choice = 42
     elif choice == 2:
         choice = 120
     elif choice == 3:
@@ -114,9 +123,9 @@ class Car():
 
         self.Car_rect = self.Car.get_rect()
         self.Car_rect.x = choice()
-        if end - start > 3:
-            if self.Car_rect.x == 120:
-                self.Car_rect.x = choice()
+        # if end - start > 3:
+        #     if self.Car_rect.x == 120:
+        #         self.Car_rect.x = choice()
         self.Car_rect.y = -50
 
     def CarUpdate(self):
@@ -127,18 +136,21 @@ class Car():
 #ability
 invincible = False
 ability_start = time.time()
-start = False
+invinciblity_start = False
 def Ability():
-    global invincible, ability_start, start, points
+    global invincible, ability_start, invinciblity_start, points, inv_text
     ability_end = time.time()
-    if ability_end - ability_start >= 7: #cooldown
+    if ability_end - ability_start >= 5 and points >= 3: #cooldown
         invincible = False
-        start = False
-    if ability_end - ability_start < 3 and points >= 10: #seconds of invinicibility
+  
+       
+    if ability_end - ability_start < 2 : #seconds of invinicibility
         invincible = True
+        
 
     if ability_end - ability_start > 10:
         ability_end = ability_start + 7
+       
 
     print(ability_end - ability_start)
 
@@ -165,19 +177,21 @@ def ExtraUpdates():
     global current_lane
     global move_switch_left
     global move_switch_right
+    print ("left " + str(move_switch_left))
+    print ("right " + str(move_switch_right))
     
     
-    if move_switch_left == True:
+    if move_switch_right == True:
         if car_rect.x >= 294: 
-            car_rect.x = 294
+            move_switch_right == False
         else: 
             car_rect.x += 6
-    elif move_switch_right == True:
-        if car_rect.x <= 45:
-            car_rect.x = 45
+    if move_switch_left == True:
+        if car_rect.x <= 42:
+            move_switch_left == False
         else: 
             car_rect.x -= 6
-    if car_rect.x in lanes:
+    if car_rect.x in lanes or car_rect.x >= 294 or car_rect.x <= 42:
         move_switch_right = False
         move_switch_left = False
     
@@ -190,6 +204,9 @@ while True:
     screen.blit(backgrounds[i], (0, 0))
     screen.blit(car, car_rect)
     screen.blit(printer, (0,0))
+    inv_text = text.render("INV: " + str(invincible), True, (0,0,0))
+    screen.blit(inv_text, (0,20))
+    screen.blit(HSText, (0,40))
     
     if car_rect.x in lanes:
         pass
@@ -218,15 +235,15 @@ while True:
             move_switch_right = False
             move_switch_left = False
             if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-                move_switch_right = True
+                move_switch_left = True
             
        
             elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-                move_switch_left = True
+                move_switch_right = True
 
             if event.key == pygame.K_SPACE:
                 ability_start = time.time()
-                start = True
+                invinciblity_start = True
                  
     
     
