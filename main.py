@@ -31,7 +31,7 @@ backgrounds = [background1,background2,background3,background4,background5,backg
 # x-coordinates for all of the lanes.
 lanes = [42, 120, 210, 294]
 # extra
-invinciblity_start = False
+invincibility_start = False
 
 HSCoreR = open("score.txt","r")
 HighScore = HSCoreR.read()
@@ -71,7 +71,7 @@ def PointSystem():
 text = pygame.font.SysFont("Mojangles", 30)
 printer = text.render("SCORE: " + str(points), True, (0,0,0))
 score = pygame.Surface((50, 50))
-inv_text = text.render("INV: " + str(invinciblity_start), True, (0,0,0))
+inv_text = text.render("INV: " + str(invincibility_start), True, (0,0,0))
 HSText = text.render("HS: "+ str(HighScore), True, (0,0,0))
 
 
@@ -136,23 +136,22 @@ class Car():
 #ability
 invincible = False
 ability_start = time.time()
-invinciblity_start = False
+ability_end = time.time()
+invincibility_start = False
+
+
 def Ability():
-    global invincible, ability_start, invinciblity_start, points, inv_text
-    ability_end = time.time()
-    if ability_end - ability_start >= 5 and points >= 3: #cooldown
+    global invincible, ability_start, ability_end, invincibility_start, points, inv_text
+    
+    
+    if ability_end - ability_start >= 5: # length of ability use
         invincible = False
-  
-       
-    if ability_end - ability_start < 2 : #seconds of invinicibility
+        invincibility_start = False
+    else:
         invincible = True
         
-
-    if ability_end - ability_start > 10:
-        ability_end = ability_start + 7
-       
-
     print(ability_end - ability_start)
+ 
 
 # For animations
 i = 0 
@@ -197,6 +196,8 @@ def ExtraUpdates():
     
 
 cars = [Car(), Car(), Car()]
+
+cooldown_start = time.time()
 while True:
     os.system('cls')
     ExtraUpdates()
@@ -242,15 +243,27 @@ while True:
                 move_switch_right = True
 
             if event.key == pygame.K_SPACE:
-                ability_start = time.time()
-                invinciblity_start = True
+                if not invincible and invincibility_start == False:
+                    ability_start = time.time()
+                    invincibility_start = True
+            
+    if invincibility_start:
+        cooldown_current = time.time()
+        if cooldown_current - cooldown_start >= 7:
+            invincibility_start = False
+            cooldown_start = time.time()
+    
+    elif invincibility_start == False:
+        Ability()
+
+    #if not inv
                  
     
     
     print("Invinsible: " + str(invincible))
     print("Start: " + str(start))
-    if start:
-        Ability()
+    
+    
     PointSystem()
   
     pygame.display.flip()
