@@ -1,3 +1,9 @@
+#what to do next class:
+#when you pickup star, become invinsible for like 10 sec or so
+#replace some timers with the new function Timer()
+
+
+
 import pygame
 import random
 import time
@@ -28,6 +34,8 @@ background8 = pygame.image.load("Images/road#8.PNG")
 background8 = pygame.transform.scale(background8, (400,600))
 
 backgrounds = [background1,background2,background3,background4,background5,background6,background7,background8]
+
+
 # x-coordinates for all of the lanes.
 lanes = [42, 120, 210, 294]
 # extra
@@ -70,12 +78,21 @@ def PointSystem():
 # text
 text = pygame.font.SysFont("Mojangles", 30)
 printer = text.render("SCORE: " + str(points), True, (0,0,0))
-inv_text = text.render("INV for: " + str(invinciblity_start), True, (0,0,0))
+inv_text = text.render("INV for: " + str(invincibility_start), True, (0,0,0))
 HSText = text.render("HS: "+ str(HighScore), True, (0,0,0))
 
 
 
 
+#TIMEEEERRRRR FUNCTION
+def Timer(start, length, current=time.time()):
+    current = time.time()
+    print(current)
+    if current - start >= length:
+        start = time.time()
+        print(start)
+        return True 
+    else: return False
 
 # randomly choosing lanes for the obstacle cars
 def choice():
@@ -89,6 +106,29 @@ def choice():
     elif choice == 4:
         choice = 294
     return choice
+# pick up star for invincibilty:
+class Star():
+    def __init__(self):
+
+        self.star = pygame.image.load("Images/you are a star.jpg")
+        self.star = pygame.transform.scale(self.star, (80,80))
+
+        self.star_rect = self.star.get_rect()
+        self.star_rect.y = -50
+        self.star_rect.x = choice()
+        
+    def StarUpdate(self):
+        screen.blit(self.star, self.star_rect)
+star = Star()
+star_active = True
+def CreateStar():
+    global created, star, star_active
+    star.StarUpdate()
+    star.star_rect.y += 1
+    if star.star_rect.y > 600:
+        star.star_rect.y = -50
+        star_active = False
+    
 
 # class defines Car obstacles in the game
 class Car():
@@ -123,9 +163,7 @@ class Car():
 
         self.Car_rect = self.Car.get_rect()
         self.Car_rect.x = choice()
-        # if end - start > 3:
-        #     if self.Car_rect.x == 120:
-        #         self.Car_rect.x = choice()
+    
         self.Car_rect.y = -50
 
     def CarUpdate(self):
@@ -199,20 +237,31 @@ def ExtraUpdates():
 
 cars = [Car(), Car(), Car()]
 
+starStart = time.time()
+
 cooldown_start = time.time()
+starTimer = Timer(starStart, 15)
 while True:
+    if star_active == False:
+        startStart = time.time()
+        starTimer = Timer(starStart, 15)
+    
     os.system('cls')
     ExtraUpdates()
     Animations()
     screen.blit(backgrounds[i], (0, 0))
     screen.blit(car, car_rect)
     screen.blit(printer, (0,0))
-    
+
     screen.blit(inv_text, (0,20))
     screen.blit(HSText, (0,40))
-    
-    if car_rect.x in lanes:
-        pass
+    if starTimer:
+        star_active = True
+        starStart = time.time()
+
+    if star_active:
+        CreateStar()
+        
     for obstacle in cars:
         obstacle.CarUpdate()
         if obstacle.Car_rect.y > 600:
