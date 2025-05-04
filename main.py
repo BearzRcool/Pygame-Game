@@ -1,6 +1,7 @@
 #what to do next class:
-#when you pickup star, become invinsible for like 10 sec or so
+#make star respawn at the right time (make it so timer only fires once at it works)
 #replace some timers with the new function Timer()
+#make an explosion apear when you hit a car
 
 
 
@@ -34,6 +35,9 @@ background8 = pygame.image.load("Images/road#8.PNG")
 background8 = pygame.transform.scale(background8, (400,600))
 
 backgrounds = [background1,background2,background3,background4,background5,background6,background7,background8]
+
+explosion = pygame.image.load("Images/explosion.png")
+explosion = pygame.transform.scale(explosion, (400,600))
 
 
 # x-coordinates for all of the lanes.
@@ -85,14 +89,12 @@ HSText = text.render("HS: "+ str(HighScore), True, (0,0,0))
 
 
 #TIMEEEERRRRR FUNCTION
-def Timer(start, length, current=time.time()):
+def Timer(start, length):
     current = time.time()
     print(current)
     if current - start >= length:
-        start = time.time()
-        print(start)
         return True 
-    else: return False
+    return False
 
 # randomly choosing lanes for the obstacle cars
 def choice():
@@ -104,14 +106,14 @@ def choice():
     elif choice == 3:
         choice = 210
     elif choice == 4:
-        choice = 294
+        choice = 294 
     return choice
 # pick up star for invincibilty:
 class Star():
     def __init__(self):
 
         self.star = pygame.image.load("Images/you are a star.jpg")
-        self.star = pygame.transform.scale(self.star, (80,80))
+        self.star = pygame.transform.scale(self.star, (50,50))
 
         self.star_rect = self.star.get_rect()
         self.star_rect.y = -50
@@ -122,10 +124,14 @@ class Star():
 star = Star()
 star_active = True
 def CreateStar():
-    global created, star, star_active
+    global created, star, star_active, invincibility_timer_start
     star.StarUpdate()
     star.star_rect.y += 1
-    if star.star_rect.y > 600:
+    if star.star_rect.colliderect(car_rect):
+        if not invincible:
+                    invincibility_timer_start = time.time()
+                    star_active = False
+    elif star.star_rect.y > 600:
         star.star_rect.y = -50
         star_active = False
     
@@ -134,37 +140,41 @@ def CreateStar():
 class Car():
 
     def __init__(self):
-        self.speed = 5
+        self.speed = 0
 
         self.CarColor = random.randint(1,5)
         if self.CarColor == 1:
             self.Car = pygame.image.load("Images/Car Obstacle.PNG")
             self.Car = pygame.transform.scale(self.Car, (60, 100))
 
+            self.speed = 5
+
         elif self.CarColor == 2:
             self.Car = pygame.image.load("Images/Car Obstacle 2.PNG")
             self.Car = pygame.transform.scale(self.Car, (60, 100))
    
-            self.speed = 5
+            self.speed = 2
         elif self.CarColor == 3:
             self.Car = pygame.image.load("Images/Car Obstacle 3.PNG")
             self.Car = pygame.transform.scale(self.Car, (60, 100))
     
-            self.speed = 7
+            self.speed = 4
         elif self.CarColor == 4:
             self.Car = pygame.image.load("Images/Car Obstacle 4.PNG")
             self.Car = pygame.transform.scale(self.Car, (60, 100))
-   
+
+            self.speed = 3
         elif self.CarColor == 5:
             self.Car = pygame.image.load("Images/Car Obstacle 5.PNG")
             self.Car = pygame.transform.scale(self.Car, (60, 100))
  
-            self.speed = 2
+            self.speed = 7
 
         self.Car_rect = self.Car.get_rect()
         self.Car_rect.x = choice()
-    
         self.Car_rect.y = -50
+        self.Car_rect = self.Car.get_rect(topleft=(self.Car_rect.x,self.Car_rect.y + 5 ))
+        
 
     def CarUpdate(self):
         screen.blit(self.Car, self.Car_rect)
@@ -174,7 +184,7 @@ class Car():
 #ability
 invincible = False
 invincibility_timer_start = 0
-invincibility_time = 6
+invincibility_time = 11
 def Ability():
     global invincible, invinciblity_start, points, invincibility_time, invincibility_timer_start, inv_text
     if invincibility_timer_start:
@@ -240,11 +250,18 @@ cars = [Car(), Car(), Car()]
 starStart = time.time()
 
 cooldown_start = time.time()
-starTimer = Timer(starStart, 15)
+starTimer = True
+
+already_use_timer = False
 while True:
+    
     if star_active == False:
-        startStart = time.time()
-        starTimer = Timer(starStart, 15)
+        star.star_rect.x = choice()
+        star.star_rect.y = -200
+        if already_use_timer == False:
+            startStart = time.time()
+            starTimer = Timer(starStart, 15)
+            already_use_timer = True
     
     os.system('cls')
     ExtraUpdates()
@@ -257,11 +274,17 @@ while True:
     screen.blit(HSText, (0,40))
     if starTimer:
         star_active = True
-        starStart = time.time()
+        already_use_timer = False
+        
+        
 
+    
+    
+    
     if star_active:
         CreateStar()
-        
+       
+
     for obstacle in cars:
         obstacle.CarUpdate()
         if obstacle.Car_rect.y > 600:
@@ -277,7 +300,9 @@ while True:
                 HSCoreW.write(str(points))
                 HSCoreW.close()
 
+            screen.blit(explosion,(0,0))
             pygame.quit()
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -293,9 +318,7 @@ while True:
             elif event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                 move_switch_right = True
 
-            if event.key == pygame.K_SPACE:
-                if not invincible:
-                    invincibility_timer_start = time.time()
+                
                  
     
     
